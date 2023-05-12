@@ -1,0 +1,49 @@
+
+
+.container{
+    text-align: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 30vh;
+}
+
+
+.container h1{
+    position: relative;
+    font-family: SimSun, Arial, sans-serif;
+    width: 100%;
+    text-align: center;
+    font-size: 3em;
+    font-weight: 600;
+    color: dodgerblue;
+    margin-bottom: 10px;
+}
+
+.login{
+    position: relative;
+    padding: 30px;
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(25px);
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.25);
+    border-left: 1px solid rgba(255, 255, 255, 0.25);
+    border-radius: 20px;
+    width: 500px;
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+    margin: 0 auto;
+}
+
+.login h2{
+    position: relative;
+    font-family: SimSun, Arial, sans-serif;
+    width: 100%;
+    text-align: center;
+    font-size: 1em;
+    font-weight: 600;
+    color: black;
+    margin-bottom: 10px;
+}
+

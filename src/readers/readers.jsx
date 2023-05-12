@@ -2,11 +2,11 @@ import React from "react";
 
 
 
-export default function Books(){
+export default function Readers(){
 
     return (
         <div>
-            books
+            readers
         </div>
     )
 }

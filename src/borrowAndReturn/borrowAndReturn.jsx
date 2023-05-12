@@ -2,11 +2,11 @@ import React from "react";
 
 
 
-export default function Books(){
+export default function BorrowAndReturn(){
 
     return (
         <div>
-            books
+            borrowandreturn
         </div>
     )
 }

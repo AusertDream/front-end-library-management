@@ -2,11 +2,11 @@ import React from "react";
 
 
 
-export default function Books(){
+export default function Remainder(){
 
     return (
         <div>
-            books
+            remainder
         </div>
     )
 }
