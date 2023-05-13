@@ -2,6 +2,7 @@ import { Button, Form, Input, Popconfirm, Table } from 'antd';
 import React, { useContext, useEffect, useRef, useState } from 'react';
 const EditableContext = React.createContext(null);
 import "./books.css"
+import axios from 'axios';
 
 const EditableRow = ({ index, ...props }) => {
     const [form] = Form.useForm();
@@ -96,9 +97,23 @@ const books = () => {
     /* 这里这个handle delete函数就是处理按了删除之后的操作的，与后端互动的地方应该就在这里*/
 
 
-    const handleDelete = (key) => {
-        const newData = dataSource.filter((item) => item.key !== key);
-        setDataSource(newData);
+    const handleDelete = async (key) => {
+        try {
+            const response = await axios.delete('http://127.0.0.1:9000/api/mgr/book', {
+                data: {
+                    action: 'del_Book',
+                    ISBN: dataSource.find((item) => item.key === key).ISBN,
+                },
+            });
+            if (response.data.ret === 0) {
+                const newData = dataSource.filter((item) => item.key !== key);
+                setDataSource(newData);
+            } else {
+                // 删除失败，可以根据需要进行处理
+            }
+        } catch (error) {
+            // 发生错误，可以根据需要进行处理
+        }
     };
     const defaultColumns = [
         {
@@ -137,17 +152,40 @@ const books = () => {
     /* 这里这个handleAdd函数就是处理按了添加之后的操作的，与后端互动的地方应该就在这里*/
     /* 下面还有一个handleSave同理*/
 
-    const handleAdd = () => {
-        const newData = {
-            key: count,
-            ISBN: `000000000`,
-            bookName: 'None',
-            Author: `no author`,
-            price: '0.00',
-        };
-        setDataSource([...dataSource, newData]);
-        setCount(count + 1);
+    const handleAdd = async () => {
+        try {
+            const newData = {
+                key: count,
+                ISBN: '000000000',
+                bookName: 'None',
+                Author: 'no author',
+                price: '0.00',
+            };
+
+            const response = await axios.post('http://127.0.0.1:9000/api/mgr/book', {
+                action: 'add_Book',
+                data: newData,
+            });
+
+            if (response.data.ret === 0) {
+                const updatedData = {
+                    ...newData,
+                    key: response.data.data.key,
+                };
+                setDataSource([...dataSource, updatedData]);
+                setCount(count + 1);
+            } else {
+                // 添加失败，可以根据需要进行处理
+            }
+        } catch (error) {
+            // 发生错误，可以根据需要进行处理
+        }
     };
+
+
+    setDataSource([...dataSource, newData]);
+    setCount(count + 1);
+};
     const handleSave = (row) => {
         const newData = [...dataSource];
         const index = newData.findIndex((item) => row.key === item.key);

@@ -1,27 +1,54 @@
-import './login.css'
+import React, { useState } from 'react';
 import { UserOutlined } from '@ant-design/icons';
-import { Input } from 'antd';
-import {Button} from 'antd';
+import { Input, Button } from 'antd';
+import axios from 'axios';
 
-export default function Login(){
+export default function Login() {
+    const [username, setUsername] = useState(''); // 定义保存用户名的状态
+    const [password, setPassword] = useState(''); // 定义保存密码的状态
 
-    return(
+    const handleLogin = () => {
+        // 构造请求数据
+        const data = new URLSearchParams();
+        data.append('username', username);
+        data.append('password', password);
+
+        axios
+            .post('http://127.0.0.1:9000/api/mgr/signin', data)
+            .then(response => {
+                // 登录成功的处理逻辑
+                console.log(response.data); // 输出服务器响应的数据
+            })
+            .catch(error => {
+                // 登录失败的处理逻辑
+                console.error(error); // 输出错误信息
+            });
+    };
+
+    return (
         <div>
-            <div className={'container'}>
+            <div className="container">
                 <h1>DXY书店管理系统</h1>
             </div>
-            <div className={'login'}>
+            <div className="login">
                 <h2>请登录！</h2>
-                <Input placeholder="登录名" prefix={<UserOutlined />} />
-                <Input.Password placeholder="密码" />
-                <Button>
-                    登录
-                </Button>
+                <Input
+                    placeholder="登录名"
+                    prefix={<UserOutlined />}
+                    value={username}
+                    onChange={e => setUsername(e.target.value)} // 更新用户名的状态
+                />
+                <Input.Password
+                    placeholder="密码"
+                    value={password}
+                    onChange={e => setPassword(e.target.value)} // 更新密码的状态
+                />
+                <Button onClick={handleLogin}>登录</Button>
             </div>
             <div>
                 <a href="/src/books/books.html">去管理员界面</a>
             </div>
         </div>
-    )
+    );
 }
 
