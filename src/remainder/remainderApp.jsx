@@ -5,8 +5,14 @@ import Remainder from "./remainder.jsx";
 
 ReactDOM.createRoot(document.getElementById("root")).render(
     <React.StrictMode>
-        <Navbar />
-        <Remainder />
+        <div className="app">
+            <div className="navbar-container">
+                <Navbar />
+            </div>
+            <div className="table-container">
+                <Remainder />
+            </div>
+        </div>
     </React.StrictMode>
 )
 

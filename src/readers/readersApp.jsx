@@ -5,8 +5,14 @@ import Readers from "./readers.jsx";
 
 ReactDOM.createRoot(document.getElementById("root")).render(
     <React.StrictMode>
-        <Navbar />
-        <Readers />
+        <div className="app">
+            <div className="navbar-container">
+                <Navbar />
+            </div>
+            <div className="table-container">
+                <Readers />
+            </div>
+        </div>
     </React.StrictMode>
 )
 

@@ -1,7 +1,7 @@
 import { Button, Form, Input, Popconfirm, Table } from 'antd';
 import React, { useContext, useEffect, useRef, useState } from 'react';
 const EditableContext = React.createContext(null);
-
+import "./books.css"
 
 const EditableRow = ({ index, ...props }) => {
     const [form] = Form.useForm();
@@ -184,6 +184,9 @@ const books = () => {
     });
     return (
         <span >
+            <div className={"container"}>
+                <h1>书籍信息表</h1>
+            </div>
             <Button
                 onClick={handleAdd}
                 type="primary"
