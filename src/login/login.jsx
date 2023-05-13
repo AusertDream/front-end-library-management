@@ -3,11 +3,14 @@ import { UserOutlined } from '@ant-design/icons';
 import { Input, Button } from 'antd';
 import axios from 'axios';
 import { Alert, Space } from 'antd';
+import { BrowserRouter, Routes, Route, Link,useNavigate } from 'react-router-dom';
 
-export default function Login() {
+
+
+ function App() {
     const [username, setUsername] = useState(''); // 定义保存用户名的状态
     const [password, setPassword] = useState(''); // 定义保存密码的状态
-
+    const navigate = useNavigate();
     const handleLogin = () => {
         // 构造请求数据
         const data = new URLSearchParams();
@@ -18,6 +21,7 @@ export default function Login() {
             .post('http://127.0.0.1:9000/api/mgr/signin', data)
             .then(response => {
                 // 登录成功的处理逻辑
+                navigate('./src/books/books.html');
                 console.log(response.data); // 输出服务器响应的数据
             })
             .catch(error => {
@@ -50,6 +54,16 @@ export default function Login() {
                 <a href="/src/books/books.html">去管理员界面</a>
             </div>
         </div>
+    );
+}
+
+export default function Login(){
+    return (
+        <BrowserRouter>
+            <Routes>
+                <Route path="/" element={<App />} />
+            </Routes>
+        </BrowserRouter>
     );
 }
 

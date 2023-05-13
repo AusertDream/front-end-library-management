@@ -81,17 +81,31 @@ const EditableCell = ({
     }
     return <td {...restProps}>{childNode}</td>;
 };
-const books = () => {
-    const [dataSource, setDataSource] = useState([
-        {
-            key: '0',
-            ISBN: '00114514',
-            bookName: 'ferryman',
-            Author: 'Clare Mcfall',
-            price: '25.20'
-        },
-    ]);
+const Books = () => {
+    const [dataSource, setDataSource] = useState([]);
     const [count, setCount] = useState(2);
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                const response = await axios.get('http://127.0.0.1:9000/api/mgr/book', {
+                    params: {
+                        action: 'list_Book',
+                    },
+                });
+                if (response.data.ret === 0) {
+                    setDataSource(response.data.retlist);
+                    console.log("init completed")
+                } else {
+                    console.log("init failed")
+                    // 请求失败，可以根据需要进行处理
+                }
+            } catch (error) {
+                console.error(error)
+                // 发生错误，可以根据需要进行处理
+            }
+        };
+        fetchData();
+    }, []);
 
 
     /* 这里这个handle delete函数就是处理按了删除之后的操作的，与后端互动的地方应该就在这里*/
@@ -129,7 +143,7 @@ const books = () => {
         },
         {
             title: '作者',
-            dataIndex: 'Author',
+            dataIndex: 'author',
             editable: true,
         },
         {
@@ -158,46 +172,27 @@ const books = () => {
                 key: count,
                 ISBN: '000000000',
                 bookName: 'None',
-                Author: 'no author',
+                author: 'no author',
                 price: '0.00',
             };
+            setDataSource([...dataSource, newData]);
+            setCount(count + 1);
 
-            const response = await axios.post('http://127.0.0.1:9000/api/mgr/book', {
-                action: 'add_Book',
-                data: newData,
-            });
-
-            if (response.data.ret === 0) {
-                const updatedData = {
-                    ...newData,
-                    key: response.data.data.key,
-                };
-                setDataSource([...dataSource, updatedData]);
-                setCount(count + 1);
-            } else {
-                // 添加失败，可以根据需要进行处理
-            }
         } catch (error) {
             // 发生错误，可以根据需要进行处理
         }
     };
-
-
-    setDataSource([...dataSource, newData]);
-    setCount(count + 1);
-};
     const handleSave = (row) => {
         const newData = [...dataSource];
         const index = newData.findIndex((item) => row.key === item.key);
         const item = newData[index];
-
-        /* 这里这个splice方法，用来将修改后的数据，覆盖原来的数据*/
         newData.splice(index, 1, {
             ...item,
             ...row,
         });
         setDataSource(newData);
         /* 将更新后的 newData 数组设置为新的数据源，从而更新表格中的数据显示。 */
+
     };
     const components = {
         body: {
@@ -244,4 +239,7 @@ const books = () => {
         </span>
     );
 };
-export default books;
+
+
+
+export default Books;

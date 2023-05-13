@@ -40,7 +40,7 @@ export default function Navbar(){
                 <ul className={"nav-menu"}>
                     <li>DXY书店管理系统</li>
                     <li>Admin(也就是用户名)</li>
-                    <li className={"right-text"}>登出</li>
+                    <li className={"right-text"} >登出</li>
                 </ul>
             </nav>
             </div>
