@@ -1,4 +1,32 @@
 
+.app {
+    background-color: #f0f0f0;
+    margin: 0;
+    padding: 0;
+    height: 100%;
+}
+
+.container {
+    display: flex;
+    flex-direction: row;
+}
+
+.navbar-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    padding: 10px;
+}
+
+.table-container {
+    position: absolute; /* 使用绝对位置 */
+    top: 15%; /* 根据实际导航栏的高度设置 */
+    left: 20%;
+    right: 5%;
+    bottom: 0;
+    padding: 10px;
+}
 
 .navbar {
     background-color: dodgerblue;

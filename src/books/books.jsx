@@ -1,6 +1,8 @@
 import { Button, Form, Input, Popconfirm, Table } from 'antd';
 import React, { useContext, useEffect, useRef, useState } from 'react';
 const EditableContext = React.createContext(null);
+
+
 const EditableRow = ({ index, ...props }) => {
     const [form] = Form.useForm();
     return (
@@ -11,6 +13,7 @@ const EditableRow = ({ index, ...props }) => {
         </Form>
     );
 };
+
 const EditableCell = ({
                           title,
                           editable,
@@ -57,7 +60,7 @@ const EditableCell = ({
                 rules={[
                     {
                         required: true,
-                        message: `${title} is required.`,
+                        message: `${title}是必填的`,
                     },
                 ]}
             >
@@ -88,6 +91,11 @@ const books = () => {
         },
     ]);
     const [count, setCount] = useState(2);
+
+
+    /* 这里这个handle delete函数就是处理按了删除之后的操作的，与后端互动的地方应该就在这里*/
+
+
     const handleDelete = (key) => {
         const newData = dataSource.filter((item) => item.key !== key);
         setDataSource(newData);
@@ -100,7 +108,7 @@ const books = () => {
             editable: true,
         },
         {
-            tile:'dafa',
+            title:'书名',
             dataIndex: 'bookName',
             editable: true,
         },
@@ -125,6 +133,10 @@ const books = () => {
                 ) : null,
         },
     ];
+
+    /* 这里这个handleAdd函数就是处理按了添加之后的操作的，与后端互动的地方应该就在这里*/
+    /* 下面还有一个handleSave同理*/
+
     const handleAdd = () => {
         const newData = {
             key: count,
@@ -140,11 +152,14 @@ const books = () => {
         const newData = [...dataSource];
         const index = newData.findIndex((item) => row.key === item.key);
         const item = newData[index];
+
+        /* 这里这个splice方法，用来将修改后的数据，覆盖原来的数据*/
         newData.splice(index, 1, {
             ...item,
             ...row,
         });
         setDataSource(newData);
+        /* 将更新后的 newData 数组设置为新的数据源，从而更新表格中的数据显示。 */
     };
     const components = {
         body: {

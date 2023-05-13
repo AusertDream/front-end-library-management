@@ -44,7 +44,7 @@ export default function Navbar(){
                 </ul>
             </nav>
             </div>
-            <span>
+            <div>
                 <Menu
                     style={{ width: 256 }}
                     defaultSelectedKeys={['1']}
@@ -56,7 +56,7 @@ export default function Navbar(){
                         </Menu.Item>
                     ))}
                 </Menu>
-            </span>
+            </div>
         </div>
     )
 }
