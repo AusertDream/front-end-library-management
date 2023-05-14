@@ -2,6 +2,7 @@ import { Button, Form, Input, Popconfirm, Table } from 'antd';
 import React, { useContext, useEffect, useRef, useState } from 'react';
 const EditableContext = React.createContext(null);
 import './borrowAndReturn.css'
+import axios from "axios";
 
 const EditableRow = ({ index, ...props }) => {
     const [form] = Form.useForm();
@@ -83,27 +84,55 @@ const EditableCell = ({
 
 
 const BorrowAndReturn = () => {
-    const [dataSource, setDataSource] = useState([
-        {
-            key: '0',
-            ID: '1',
-            date: '2023-5-13',
-            ISBN: '0012454865',
-            readID: '115414'
-        },
-    ]);
+    const [dataSource, setDataSource] = useState([]);
     const [count, setCount] = useState(2);
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                const response = await axios.get('http://127.0.0.1:9000/api/mgr/borrow_return', {
+                    params: {
+                        action: 'list_borrow',
+                    },
+                });
+                if (response.data.ret === 0) {
+                    setDataSource(response.data.retlist);
+                    console.log("init completed")
+                } else {
+                    console.log("init failed")
+                    // 请求失败，可以根据需要进行处理
+                }
+            } catch (error) {
+                console.error(error)
+                // 发生错误，可以根据需要进行处理
+            }
+        };
+        fetchData();
+    }, []);
 
-    const [dataSource2, setDataSource2] = useState([
-        {
-            key: '0',
-            ID: '1',
-            date: '2023-5-14',
-            ISBN: '0012454865',
-            readID: '115414'
-        },
-    ]);
+    const [dataSource2, setDataSource2] = useState([]);
     const [count2, setCount2] = useState(2);
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                const response = await axios.get('http://127.0.0.1:9000/api/mgr/borrow_return', {
+                    params: {
+                        action: 'list_return',
+                    },
+                });
+                if (response.data.ret === 0) {
+                    setDataSource2(response.data.retlist);
+                    console.log("init completed")
+                } else {
+                    console.log("init failed")
+                    // 请求失败，可以根据需要进行处理
+                }
+            } catch (error) {
+                console.error(error)
+                // 发生错误，可以根据需要进行处理
+            }
+        };
+        fetchData();
+    }, []);
     /* 这里这个handle delete函数就是处理按了删除之后的操作的，与后端互动的地方应该就在这里*/
 
 
@@ -118,23 +147,25 @@ const BorrowAndReturn = () => {
     const defaultColumns = [
         {
             title: 'ID',
-            dataIndex: 'ID',
+            dataIndex: 'borrowID',
             width: '20%',
+            editable: true,
+        },
+
+        {
+            title: 'ISBN',
+            dataIndex: 'ISBN_id',
+            editable: true,
+        },
+
+        {
+            title: '读者ID',
+            dataIndex: 'readerID_id',
             editable: true,
         },
         {
             title:'日期',
             dataIndex: 'date',
-            editable: true,
-        },
-        {
-            title: 'ISBN',
-            dataIndex: 'ISBN',
-            editable: true,
-        },
-        {
-            title: '读者ID',
-            dataIndex: 'readID',
             editable: true,
         },
         {
@@ -152,30 +183,32 @@ const BorrowAndReturn = () => {
     const defaultColumns2 = [
         {
             title: 'ID',
-            dataIndex: 'ID',
+            dataIndex: 'borrowID',
             width: '20%',
+            editable: true,
+        },
 
+        {
+            title: 'ISBN',
+            dataIndex: 'ISBN_id',
+            editable: true,
+        },
+
+        {
+            title: '读者ID',
+            dataIndex: 'readerID_id',
+            editable: true,
         },
         {
             title:'日期',
             dataIndex: 'date',
-
-        },
-        {
-            title: 'ISBN',
-            dataIndex: 'ISBN',
-
-        },
-        {
-            title: '读者ID',
-            dataIndex: 'readID',
-
+            editable: true,
         },
         {
             title: '操作',
             dataIndex: 'operation',
             render: (_, record) =>
-                dataSource.length >= 1 ? (
+                dataSource2.length >= 1 ? (
                     <Popconfirm title="确认删除?" onConfirm={() => handleDelete2(record.key)}>
                         <a>删除</a>
                     </Popconfirm>

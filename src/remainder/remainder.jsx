@@ -2,7 +2,7 @@ import { Button, Form, Input, Popconfirm, Table } from 'antd';
 import React, { useContext, useEffect, useRef, useState } from 'react';
 const EditableContext = React.createContext(null);
 import "./remainder.css"
-
+import axios from 'axios';
 
 const EditableRow = ({ index, ...props }) => {
     const [form] = Form.useForm();
@@ -93,34 +93,30 @@ const EditableCell = ({
 };
 const Remainder = () => {
 
-    /*
-    将后端的数据，存放在dataSource中，以便使用
     const [dataSource, setDataSource] = useState([]);
-
-    // 从后端获取书籍库存信息
+    const [count, setCount] = useState(2);
     useEffect(() => {
+        const fetchData = async () => {
+            try {
+                const response = await axios.get('http://127.0.0.1:9000/api/mgr/CollectionOfBook', {
+                    params: {
+                        action: 'list_collection',
+                    },
+                });
+                if (response.data.ret === 0) {
+                    setDataSource(response.data.retlist);
+                    console.log("init completed")
+                } else {
+                    console.log("init failed")
+                    // 请求失败，可以根据需要进行处理
+                }
+            } catch (error) {
+                console.error(error)
+                // 发生错误，可以根据需要进行处理
+            }
+        };
         fetchData();
     }, []);
-
-    const fetchData = async () => {
-        try {
-            const response = await axios.get('/api/books');
-            setDataSource(response.data);
-        } catch (error) {
-            console.error('Error fetching data:', error);
-        }
-    };
-    */
-    const [dataSource, setDataSource] = useState([
-        {
-            key: '0',
-            ISBN: '00114514',
-            bookName: 'ferryman',
-            totalNum: '10',
-
-        },
-    ]);
-    const [count, setCount] = useState(2);
 
 
     /* 这里这个handle delete函数就是处理按了删除之后的操作的，与后端互动的地方应该就在这里*/
@@ -133,18 +129,14 @@ const Remainder = () => {
     const defaultColumns = [
         {
             title: 'ISBN',
-            dataIndex: 'ISBN',
+            dataIndex: 'ISBN_id',
             width: '20%',
             editable: true,
         },
-        {
-            title:'书名',
-            dataIndex: 'bookName',
-            editable: true,
-        },
+
         {
             title: '剩余量',
-            dataIndex: 'totalNum',
+            dataIndex: 'TotalNum',
             editable: true,
         },
         {

@@ -36,13 +36,13 @@ export default function Navbar(){
     return(
         <div>
             <div>
-            <nav className={"navbar"}>
-                <ul className={"nav-menu"}>
-                    <li>DXY书店管理系统</li>
-                    <li>Admin(也就是用户名)</li>
-                    <li className={"right-text"} >登出</li>
-                </ul>
-            </nav>
+                <nav className={"navbar"}>
+                    <ul className={"nav-menu"}>
+                        <li>DXY书店管理系统</li>
+                        <li>Admin(也就是用户名)</li>
+                        <li className={"right-text"} >登出</li>
+                    </ul>
+                </nav>
             </div>
             <div>
                 <Menu

@@ -2,6 +2,7 @@ import { Button, Form, Input, Popconfirm, Table } from 'antd';
 import React, { useContext, useEffect, useRef, useState } from 'react';
 const EditableContext = React.createContext(null);
 import "./readers.css"
+import axios from 'axios';
 
 const EditableRow = ({ index, ...props }) => {
     const [form] = Form.useForm();
@@ -81,17 +82,31 @@ const EditableCell = ({
     return <td {...restProps}>{childNode}</td>;
 };
 const Readers = () => {
-    const [dataSource, setDataSource] = useState([
-        {
-            key: '0',
-            ID: '0',
-            name: 'dxxyy',
-            sex: 'female',
-            age: '18',
-            tel: '1145547858'
-        },
-    ]);
+    const [dataSource, setDataSource] = useState([]);
+
     const [count, setCount] = useState(2);
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                const response = await axios.get('http://127.0.0.1:9000/api/mgr/reader', {
+                    params: {
+                        action: 'list_reader',
+                    },
+                });
+                if (response.data.ret === 0) {
+                    setDataSource(response.data.retlist);
+                    console.log("init completed")
+                } else {
+                    console.log("init failed")
+                    // 请求失败，可以根据需要进行处理
+                }
+            } catch (error) {
+                console.error(error)
+                // 发生错误，可以根据需要进行处理
+            }
+        };
+        fetchData();
+    }, []);
 
 
     /* 这里这个handle delete函数就是处理按了删除之后的操作的，与后端互动的地方应该就在这里*/
@@ -104,13 +119,13 @@ const Readers = () => {
     const defaultColumns = [
         {
             title: 'ID',
-            dataIndex: 'ID',
+            dataIndex: 'readerID',
             width: '20%',
             editable: true,
         },
         {
             title:'姓名',
-            dataIndex: 'name',
+            dataIndex: 'readerName',
             editable: true,
         },
         {
