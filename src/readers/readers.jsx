@@ -112,10 +112,22 @@ const Readers = () => {
     /* 这里这个handle delete函数就是处理按了删除之后的操作的，与后端互动的地方应该就在这里*/
 
 
-    const handleDelete = (key) => {
-        const newData = dataSource.filter((item) => item.key !== key);
-        setDataSource(newData);
+    const handleDelete = async (key) => {
+        try {
+            await axios.delete('http://127.0.0.1:9000/api/mgr/reader', {
+                params: {
+                    action: 'del_reader',
+                    readerID: key,
+                },
+            });
+
+            const newData = dataSource.filter((item) => item.key !== key);
+            setDataSource(newData);
+        } catch (error) {
+            // 发生错误，可以根据需要进行处理
+        }
     };
+
     const defaultColumns = [
         {
             title: 'ID',
@@ -188,19 +200,32 @@ const Readers = () => {
                 // 处理请求错误的情况
             });
     };
-    const handleSave = (row) => {
-        const newData = [...dataSource];
-        const index = newData.findIndex((item) => row.key === item.key);
-        const item = newData[index];
 
-        /* 这里这个splice方法，用来将修改后的数据，覆盖原来的数据*/
-        newData.splice(index, 1, {
-            ...item,
-            ...row,
-        });
-        setDataSource(newData);
-        /* 将更新后的 newData 数组设置为新的数据源，从而更新表格中的数据显示。 */
+
+    const handleSave = async (row) => {
+        try {
+            const response = await axios.put('http://127.0.0.1:9000/api/mgr/reader', {
+                action: 'modify_reader',
+                readerID: row.readerID,
+                newdata: {
+                    readerName: row.readerName,
+                    sex: row.sex,
+                    age: row.age,
+                    tel: row.tel,
+                },
+            });
+
+            if (response.data.ret === 0) {
+                // 数据保存成功
+            } else {
+                // 修改失败，可以根据需要进行处理
+            }
+        } catch (error) {
+            // 发生错误，可以根据需要进行处理
+        }
     };
+
+
     const components = {
         body: {
             row: EditableRow,

@@ -181,7 +181,7 @@ const Books = () => {
     const handleAdd = async () => {
         try {
             const newData = {
-                ISBN: '0000000000000',
+                ISBN: '987654321111',
                 bookName: 'None',
                 author: 'no author',
                 price: '0.00',
@@ -210,6 +210,7 @@ const Books = () => {
                 action: 'modify_Book',
                 ISBN: row.ISBN,
                 newdata: {
+                    ISBN: row.newISBN, // 修改的ISBN值
                     bookName: row.bookName,
                     author: row.author,
                     price: row.price,
@@ -223,9 +224,9 @@ const Books = () => {
                 newData.splice(index, 1, {
                     ...item,
                     ...row,
+                    ISBN: row.newISBN, // 更新修改后的ISBN值
                 });
                 setDataSource(newData);
-
             } else {
                 // 修改失败，可以根据需要进行处理
             }
@@ -233,6 +234,7 @@ const Books = () => {
             // 发生错误，可以根据需要进行处理
         }
     };
+
 
 
 

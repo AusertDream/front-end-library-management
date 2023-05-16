@@ -2,6 +2,7 @@ import { Button, Form, Input, Popconfirm, Table } from 'antd';
 import React, { useContext, useEffect, useRef, useState } from 'react';
 const EditableContext = React.createContext(null);
 import './buyAndSold.css'
+import axios from "axios";
 
 const EditableRow = ({ index, ...props }) => {
     const [form] = Form.useForm();
@@ -83,28 +84,57 @@ const EditableCell = ({
 
 
 const BuyAndSold = () => {
-    const [dataSource, setDataSource] = useState([
-        {
-            key: '0',
-            ID: '1',
-            ISBN: '114514',
-            num: '10',
-            amount: '516'
-        },
-    ]);
+    const [dataSource, setDataSource] = useState([{},]);
     const [count, setCount] = useState(2);
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                const response = await axios.get('http://127.0.0.1:9000/api/mgr/sell_purchase', {
+                    params: {
+                        action: 'list_purchase',
+                    },
+                });
+                if (response.data.ret === 0) {
+                    setDataSource(response.data.retlist);
+                    console.log("init completed")
+                } else {
+                    console.log("init failed")
+                    // 请求失败，可以根据需要进行处理
+                }
+            } catch (error) {
+                console.error(error)
+                // 发生错误，可以根据需要进行处理
+            }
+        };
+        fetchData();
+    }, []);
 
-    const [dataSource2, setDataSource2] = useState([
-        {
-            key: '0',
-            ID: '1',
-            ISBN: '114514',
-            num: '100',
-            price: '20.2'
-        },
-    ]);
+
+    const [dataSource2, setDataSource2] = useState([{},]);
     const [count2, setCount2] = useState(2);
-    /* 这里这个handle delete函数就是处理按了删除之后的操作的，与后端互动的地方应该就在这里*/
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                const response = await axios.get('http://127.0.0.1:9000/api/mgr/sell_purchase', {
+                    params: {
+                        action: 'list_sell',
+                    },
+                });
+                if (response.data.ret === 0) {
+                    setDataSource2(response.data.retlist);
+                    console.log("init completed")
+                } else {
+                    console.log("init failed")
+                    // 请求失败，可以根据需要进行处理
+                }
+            } catch (error) {
+                console.error(error)
+                // 发生错误，可以根据需要进行处理
+            }
+        };
+        fetchData();
+    }, []);
+
 
 
     const handleDelete = (key) => {
@@ -197,16 +227,31 @@ const BuyAndSold = () => {
         setCount(count + 1);
     };
 
-    const handleAdd2 = () => {
-        const newData = {
-            key: count2,
-            ID: `0`,
-            ISBN: '0000',
-            num: `0000000`,
-            price: '00.0',
-        };
-        setDataSource2([...dataSource2, newData]);
-        setCount2(count2 + 1);
+    const handleAdd2 = async () => {
+        try {
+            const newData = {
+                key: count,
+                ID: '1',
+                ISBN: '0000000',
+                num: '10',
+                amount: '100',
+            };
+
+            const response = await axios.post('http://127.0.0.1:9000/api/mgr/sell_purchase', {
+                action: 'add_purchase',
+                data: newData,
+            });
+
+            if (response.data.ret === 0) {
+                newData.purchaseID = response.data.purchaseID;
+                setDataSource2([...dataSource2, newData]);
+                setCount2(count + 1);
+            } else {
+                // 添加失败，可以根据需要进行处理
+            }
+        } catch (error) {
+            // 发生错误，可以根据需要进行处理
+        }
     };
     const handleSave = (row) => {
         const newData = [...dataSource];

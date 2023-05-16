@@ -122,10 +122,22 @@ const Remainder = () => {
     /* 这里这个handle delete函数就是处理按了删除之后的操作的，与后端互动的地方应该就在这里*/
 
 
-    const handleDelete = (key) => {
-        const newData = dataSource.filter((item) => item.key !== key);
-        setDataSource(newData);
+    const handleDelete = async (key) => {
+        try {
+            await axios.delete('http://127.0.0.1:9000/api/mgr/collection', {
+                params: {
+                    action: 'del_collection',
+                    id: key,
+                },
+            });
+
+            const newData = dataSource.filter((item) => item.key !== key);
+            setDataSource(newData);
+        } catch (error) {
+            // 发生错误，可以根据需要进行处理
+        }
     };
+
     const defaultColumns = [
         {
             title: 'ISBN',
@@ -154,29 +166,58 @@ const Remainder = () => {
     /* 这里这个handleAdd函数就是处理按了添加之后的操作的，与后端互动的地方应该就在这里*/
     /* 下面还有一个handleSave同理*/
 
-    const handleAdd = () => {
-        const newData = {
-            key: count,
-            ISBN: `000000000`,
-            bookName: 'None',
-            totalNum: `100`,
-        };
-        setDataSource([...dataSource, newData]);
-        setCount(count + 1);
-    };
-    const handleSave = (row) => {
-        const newData = [...dataSource];
-        const index = newData.findIndex((item) => row.key === item.key);
-        const item = newData[index];
+    const handleAdd = async () => {
+        try {
+            const newData = {
+                key: count,
+                ISBN: '1234567891234',
+                totalNum: '100',
+            };
 
-        /* 这里这个splice方法，用来将修改后的数据，覆盖原来的数据*/
-        newData.splice(index, 1, {
-            ...item,
-            ...row,
-        });
-        setDataSource(newData);
-        /* 将更新后的 newData 数组设置为新的数据源，从而更新表格中的数据显示。 */
+            const response = await axios.post('http://127.0.0.1:9000/api/mgr/collection', {
+                action: 'add_collection',
+                data: newData,
+            });
+
+            if (response.data.ret === 0) {
+                newData.id = response.data.id;
+                setDataSource([...dataSource, newData]);
+                setCount(count + 1);
+            } else {
+                // 添加失败，可以根据需要进行处理
+            }
+        } catch (error) {
+            // 发生错误，可以根据需要进行处理
+        }
     };
+
+    const handleSave = async (row) => {
+        try {
+            const response = await axios.put('http://127.0.0.1:9000/api/mgr/collection', {
+                action: 'modify_collection',
+                id: row.key,
+                newdata: {
+                    TotalNum: row.TotalNum,
+                },
+            });
+
+            if (response.data.ret === 0) {
+                const newData = [...dataSource];
+                const index = newData.findIndex((item) => row.key === item.key);
+                const item = newData[index];
+                newData.splice(index, 1, {
+                    ...item,
+                    ...row,
+                });
+                setDataSource(newData);
+            } else {
+                // 修改失败，可以根据需要进行处理
+            }
+        } catch (error) {
+            // 发生错误，可以根据需要进行处理
+        }
+    };
+
     const components = {
         body: {
             row: EditableRow,

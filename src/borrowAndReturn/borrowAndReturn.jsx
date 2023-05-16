@@ -136,9 +136,27 @@ const BorrowAndReturn = () => {
     /* 这里这个handle delete函数就是处理按了删除之后的操作的，与后端互动的地方应该就在这里*/
 
 
-    const handleDelete = (key) => {
-        const newData = dataSource.filter((item) => item.key !== key);
-        setDataSource(newData);
+    const handleDelete = async (key) => {
+        try {
+            const targetData = dataSource.find((item) => item.key === key);
+            if (!targetData) return;
+
+            const response = await axios.delete('http://127.0.0.1:9000/api/mgr/borrow_return', {
+                data: {
+                    action: 'del_borrow_return',
+                    id: targetData.id,
+                },
+            });
+
+            if (response.data.ret === 0) {
+                const newData = dataSource.filter((item) => item.key !== key);
+                setDataSource(newData);
+            } else {
+                // 删除失败，可以根据需要进行处理
+            }
+        } catch (error) {
+            // 发生错误，可以根据需要进行处理
+        }
     };
     const handleDelete2 = (key) => {
         const newData = dataSource2.filter((item) => item.key !== key);
@@ -183,7 +201,7 @@ const BorrowAndReturn = () => {
     const defaultColumns2 = [
         {
             title: 'ID',
-            dataIndex: 'borrowID',
+            dataIndex: 'returnID',
             width: '20%',
             editable: true,
         },
@@ -222,9 +240,9 @@ const BorrowAndReturn = () => {
         const newData = {
             key: count,
             ID: `0`,
-            date: '0000-00-00',
             ISBN: `0000000`,
             readID: '114514',
+            date: '0000-00-00',
         };
         setDataSource([...dataSource, newData]);
         setCount(count + 1);
@@ -234,9 +252,9 @@ const BorrowAndReturn = () => {
         const newData = {
             key: count2,
             ID: `0`,
-            date: '0000-00-00',
             ISBN: `0000000`,
             readID: '114514',
+            date: '0000-00-00',
         };
         setDataSource2([...dataSource2, newData]);
         setCount2(count2 + 1);
