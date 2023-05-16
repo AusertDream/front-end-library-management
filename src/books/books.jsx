@@ -4,6 +4,7 @@ const EditableContext = React.createContext(null);
 import "./books.css"
 import axios from 'axios';
 
+
 const EditableRow = ({ index, ...props }) => {
     const [form] = Form.useForm();
     return (
@@ -113,22 +114,33 @@ const Books = () => {
 
     const handleDelete = async (key) => {
         try {
+            const ISBN = dataSource.find((item) => item.key === key).ISBN;
+
             const response = await axios.delete('http://127.0.0.1:9000/api/mgr/book', {
-                data: {
-                    action: 'del_Book',
-                    ISBN: dataSource.find((item) => item.key === key).ISBN,
+                headers: {
+                    'Content-Type': 'application/json'
                 },
+                data: JSON.stringify({
+                    action: 'del_Book',
+                    ISBN: ISBN
+                })
             });
+
             if (response.data.ret === 0) {
                 const newData = dataSource.filter((item) => item.key !== key);
                 setDataSource(newData);
             } else {
-                // 删除失败，可以根据需要进行处理
+                // 处理删除失败的情况
             }
         } catch (error) {
-            // 发生错误，可以根据需要进行处理
+            // 处理请求错误的情况
         }
     };
+
+
+
+
+
     const defaultColumns = [
         {
             title: 'ISBN',
@@ -169,31 +181,61 @@ const Books = () => {
     const handleAdd = async () => {
         try {
             const newData = {
-                key: count,
-                ISBN: '000000000',
+                ISBN: '0000000000000',
                 bookName: 'None',
                 author: 'no author',
                 price: '0.00',
             };
-            setDataSource([...dataSource, newData]);
-            setCount(count + 1);
 
+            const response = await axios.post('http://127.0.0.1:9000/api/mgr/book', {
+                action: 'add_Book',
+                data: newData,
+            });
+
+            if (response.data.ret === 0) {
+                newData.key = response.data.ISBN;
+                setDataSource([...dataSource, newData]);
+                setCount(count + 1);
+            } else {
+                // 添加失败，可以根据需要进行处理
+            }
         } catch (error) {
             // 发生错误，可以根据需要进行处理
         }
     };
-    const handleSave = (row) => {
-        const newData = [...dataSource];
-        const index = newData.findIndex((item) => row.key === item.key);
-        const item = newData[index];
-        newData.splice(index, 1, {
-            ...item,
-            ...row,
-        });
-        setDataSource(newData);
-        /* 将更新后的 newData 数组设置为新的数据源，从而更新表格中的数据显示。 */
 
+    const handleSave = async (row) => {
+        try {
+            const response = await axios.put('http://127.0.0.1:9000/api/mgr/book', {
+                action: 'modify_Book',
+                ISBN: row.ISBN,
+                newdata: {
+                    bookName: row.bookName,
+                    author: row.author,
+                    price: row.price,
+                },
+            });
+
+            if (response.data.ret === 0) {
+                const newData = [...dataSource];
+                const index = newData.findIndex((item) => row.key === item.key);
+                const item = newData[index];
+                newData.splice(index, 1, {
+                    ...item,
+                    ...row,
+                });
+                setDataSource(newData);
+
+            } else {
+                // 修改失败，可以根据需要进行处理
+            }
+        } catch (error) {
+            // 发生错误，可以根据需要进行处理
+        }
     };
+
+
+
     const components = {
         body: {
             row: EditableRow,
@@ -204,6 +246,7 @@ const Books = () => {
         if (!col.editable) {
             return col;
         }
+
         return {
             ...col,
             onCell: (record) => ({

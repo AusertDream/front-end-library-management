@@ -161,14 +161,32 @@ const Readers = () => {
     const handleAdd = () => {
         const newData = {
             key: count,
-            ID: `0`,
-            name: 'None',
-            sex: `helicopter`,
-            age: '100',
-            tel: '1145141548'
+            ID: '0',
+            readerName: 'None',
+            sex: '男',
+            age: '20',
+            tel: '12345678910'
         };
-        setDataSource([...dataSource, newData]);
-        setCount(count + 1);
+
+        axios.post('http://127.0.0.1:9000/api/mgr/reader', {
+            action: 'add_reader',
+            data: newData
+        })
+            .then(response => {
+                if (response.data.ret === 0) {
+                    const record = {
+                        ...newData,
+                        readerID: response.data.readerID
+                    };
+                    setDataSource([...dataSource, record]);
+                    setCount(count + 1);
+                } else {
+                    // 处理添加失败的情况
+                }
+            })
+            .catch(error => {
+                // 处理请求错误的情况
+            });
     };
     const handleSave = (row) => {
         const newData = [...dataSource];
