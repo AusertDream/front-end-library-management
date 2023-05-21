@@ -121,8 +121,15 @@ const BuyAndSold = () => {
                     },
                 });
                 if (response.data.ret === 0) {
-                    setDataSource2(response.data.retlist);
-                    console.log("init completed")
+                    const data = response.data.retlist.map(item => ({
+                        sellID: item.sellID,
+                        ISBN: item.ISBN,
+                        alreadySold: item.alreadySold,
+                        price: item.price__price,
+                    }));
+
+                    setDataSource2(data);
+                    console.log("init completed");
                 } else {
                     console.log("init failed")
                     // 请求失败，可以根据需要进行处理
@@ -148,7 +155,7 @@ const BuyAndSold = () => {
     const defaultColumns = [
         {
             title: 'ID',
-            dataIndex: 'ID',
+            dataIndex: 'purchaseID',
             width: '20%',
             editable: true,
         },
@@ -164,7 +171,7 @@ const BuyAndSold = () => {
         },
         {
             title: '总金额',
-            dataIndex: 'amount',
+            dataIndex: 'price',
             editable: true,
         },
         {
@@ -182,7 +189,7 @@ const BuyAndSold = () => {
     const defaultColumns2 = [
         {
             title: 'ID',
-            dataIndex: 'ID',
+            dataIndex: 'sellID',
             width: '20%',
 
         },
@@ -193,7 +200,7 @@ const BuyAndSold = () => {
         },
         {
             title: '数量',
-            dataIndex: 'num',
+            dataIndex: 'alreadySold',
 
         },
         {
