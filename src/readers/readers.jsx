@@ -83,56 +83,51 @@ const EditableCell = ({
 };
 const Readers = () => {
     const [dataSource, setDataSource] = useState([]);
-
     const [count, setCount] = useState(2);
     useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const response = await axios.get('http://127.0.0.1:9000/api/mgr/reader', {
-                    params: {
-                        action: 'list_reader',
-                    },
-                });
-                if (response.data.ret === 0) {
-                    setDataSource(response.data.retlist);
-                    console.log("init completed")
-                } else {
-                    console.log("init failed")
-                    // 请求失败，可以根据需要进行处理
-                }
-            } catch (error) {
-                console.error(error)
-                // 发生错误，可以根据需要进行处理
-            }
-        };
         fetchData();
     }, []);
 
+    const fetchData = async () => {
+        try {
+            const response = await axios.get('http://127.0.0.1:9000/api/mgr/reader', {
+                params: {
+                    action: 'list_reader',
+                },
+            });
 
+            if (response.data.ret === 0) {
+                setDataSource(response.data.retlist);
+                console.log('Data initialized successfully');
+            } else {
+                console.log('Data initialization failed');
+            }
+        } catch (error) {
+            console.error(error);
+        }
+    };
     /* 这里这个handle delete函数就是处理按了删除之后的操作的，与后端互动的地方应该就在这里*/
 
-
+    axios.defaults.xsrfCookieName = 'csrftoken';
+    axios.defaults.xsrfHeaderName = 'X-CSRFToken';
     const handleDelete = async (key) => {
         try {
             await axios.delete('http://127.0.0.1:9000/api/mgr/reader', {
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                data: {
+                params: {
                     action: 'del_reader',
                     readerID: key,
                 },
             });
 
-            const response = await axios.get('http://127.0.0.1:9000/api/mgr/reader?action=list_reader');
-            const newData = response.data.retlist;
-            setDataSource(newData);
+            // 更新数据源
+            setDataSource(dataSource.filter(item => item.readerID !== key));
         } catch (error) {
-            // 发生错误，可以根据需要进行处理
+            console.error(error);
         }
     };
-
-
 
     const defaultColumns = [
         {
@@ -166,7 +161,7 @@ const Readers = () => {
             dataIndex: 'operation',
             render: (_, record) =>
                 dataSource.length >= 1 ? (
-                    <Popconfirm title="确认删除?" onConfirm={() => handleDelete(record.key)}>
+                    <Popconfirm title="确认删除?" onConfirm={() => handleDelete(record.readerID)}>
                         <a>删除</a>
                     </Popconfirm>
                 ) : null,
