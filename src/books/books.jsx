@@ -20,7 +20,7 @@ const waitTime = (time = 100) => {
 
 const defaultData = [
     {
-        id:46468,
+        id: 1145478,
         ISBN: 1,
         bookName: '书1',
         author: '作者1',
@@ -52,9 +52,7 @@ const Books = () => {
                     rules: rowIndex > 1 ? [{ required: true, message: '此项为必填项' }] : [],
                 };
             },
-            editable: (text, record, index) => {
-                return index !== 0;
-            },
+            editable: true,
             width: '15%',
         },
         {
@@ -65,9 +63,7 @@ const Books = () => {
                     rules: rowIndex > 1 ? [{ required: true, message: '此项为必填项' }] : [],
                 };
             },
-            editable: (text, record, index) => {
-                return index !== 0;
-            },
+            editable: true,
             width: '15%',
         },
         {
@@ -78,9 +74,7 @@ const Books = () => {
                     rules: rowIndex > 1 ? [{ required: true, message: '此项为必填项' }] : [],
                 };
             },
-            editable: (text, record, index) => {
-                return index !== 0;
-            },
+            editable: true,
         },
         {
             title: '价格',
@@ -90,9 +84,7 @@ const Books = () => {
                     rules: rowIndex > 1 ? [{ required: true, message: '此项为必填项' }] : [],
                 };
             },
-            editable: (text, record, index) => {
-                return index !== 0;
-            },
+            editable: true,
         },
         {
             title: '操作',
@@ -266,6 +258,7 @@ const Books = () => {
                  editable={{
                      type: 'multiple',
                      editableKeys: editableKeys,
+                     //数据交互都在onSave这里进行
                      onSave: async (rowKey, data, row) => {
                          console.log(rowKey, data, row);
                          await waitTime(100);
