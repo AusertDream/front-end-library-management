@@ -1,91 +1,126 @@
-import { Button, Form, Input, Popconfirm, Table } from 'antd';
+
+import {
+    EditableProTable,
+    ProCard,
+    ProFormField,
+    ProFormRadio,
+} from '@ant-design/pro-components';
 import React, { useContext, useEffect, useRef, useState } from 'react';
-const EditableContext = React.createContext(null);
 import "./books.css"
 import axios from 'axios';
 
 
-const EditableRow = ({ index, ...props }) => {
-    const [form] = Form.useForm();
-    return (
-        <Form form={form} component={false}>
-            <EditableContext.Provider value={form}>
-                <tr {...props} />
-            </EditableContext.Provider>
-        </Form>
-    );
+const waitTime = (time = 100) => {
+    return new Promise((resolve) => {
+        setTimeout(() => {
+            resolve(true);
+        }, time);
+    });
 };
 
-const EditableCell = ({
-                          title,
-                          editable,
-                          children,
-                          dataIndex,
-                          record,
-                          handleSave,
-                          ...restProps
-                      }) => {
-    const [editing, setEditing] = useState(false);
-    const inputRef = useRef(null);
-    const form = useContext(EditableContext);
-    useEffect(() => {
-        if (editing) {
-            inputRef.current.focus();
-        }
-    }, [editing]);
-    const toggleEdit = () => {
-        setEditing(!editing);
-        form.setFieldsValue({
-            [dataIndex]: record[dataIndex],
-        });
-    };
-    const save = async () => {
-        try {
-            const values = await form.validateFields();
-            toggleEdit();
-            handleSave({
-                ...record,
-                ...values,
-            });
-        } catch (errInfo) {
-            console.log('Save failed:', errInfo);
-        }
-    };
-    let childNode = children;
-    if (editable) {
-        childNode = editing ? (
-            <Form.Item
-                style={{
-                    margin: 0,
-                }}
-                name={dataIndex}
-                rules={[
-                    {
-                        required: true,
-                        message: `${title}是必填的`,
-                    },
-                ]}
-            >
-                <Input ref={inputRef} onPressEnter={save} onBlur={save} />
-            </Form.Item>
-        ) : (
-            <div
-                className="editable-cell-value-wrap"
-                style={{
-                    paddingRight: 24,
-                }}
-                onClick={toggleEdit}
-            >
-                {children}
-            </div>
-        );
-    }
-    return <td {...restProps}>{childNode}</td>;
-};
+const defaultData = [
+    {
+        id:46468,
+        ISBN: 1,
+        bookName: '书1',
+        author: '作者1',
+        price: 15.25,
+    },
+    {
+        id: 624691229,
+        ISBN: 2,
+        bookName: '书2',
+        author: '作者2',
+        price: 11.25,
+    },
+];
+
+
+
+
+
 const Books = () => {
-    const [dataSource, setDataSource] = useState([]);
-    const [count, setCount] = useState(2);
-    useEffect(() => {
+    const [editableKeys, setEditableRowKeys] = useState([]);
+    const [dataSource, setDataSource] = useState(defaultData);
+    const [position, setPosition] = useState('bottom');
+    const columns = [
+        {
+            title: 'ISBN',
+            dataIndex: 'ISBN',
+            formItemProps: (form, { rowIndex }) => {
+                return {
+                    rules: rowIndex > 1 ? [{ required: true, message: '此项为必填项' }] : [],
+                };
+            },
+            editable: (text, record, index) => {
+                return index !== 0;
+            },
+            width: '15%',
+        },
+        {
+            title:'书名',
+            dataIndex: 'bookName',
+            formItemProps: (form, { rowIndex }) => {
+                return {
+                    rules: rowIndex > 1 ? [{ required: true, message: '此项为必填项' }] : [],
+                };
+            },
+            editable: (text, record, index) => {
+                return index !== 0;
+            },
+            width: '15%',
+        },
+        {
+            title: '作者',
+            dataIndex: 'author',
+            formItemProps: (form, { rowIndex }) => {
+                return {
+                    rules: rowIndex > 1 ? [{ required: true, message: '此项为必填项' }] : [],
+                };
+            },
+            editable: (text, record, index) => {
+                return index !== 0;
+            },
+        },
+        {
+            title: '价格',
+            dataIndex: 'price',
+            formItemProps: (form, { rowIndex }) => {
+                return {
+                    rules: rowIndex > 1 ? [{ required: true, message: '此项为必填项' }] : [],
+                };
+            },
+            editable: (text, record, index) => {
+                return index !== 0;
+            },
+        },
+        {
+            title: '操作',
+            valueType: 'option',
+            width: 200,
+            render: (text, record, _, action) => [
+                <a
+                    key="editable"
+                    onClick={() => {
+                        action?.startEditable?.(record.id);
+                    }}
+                >
+                    编辑
+                </a>,
+                <a
+                    key="delete"
+                    onClick={() => {
+                        setDataSource(dataSource.filter((item) => item.id !== record.id));
+                        //如果点击了删除应该做什么，这里可以写前后端的交互
+                    }}
+                >
+                    删除
+                </a>,
+            ],
+        },
+    ];
+    //数据初始化
+    /*useEffect(() => {
         const fetchData = async () => {
             try {
                 const response = await axios.get('http://127.0.0.1:9000/api/mgr/book', {
@@ -106,7 +141,7 @@ const Books = () => {
             }
         };
         fetchData();
-    }, []);
+    }, []);*/
 
 
     /* 这里这个handle delete函数就是处理按了删除之后的操作的，与后端互动的地方应该就在这里*/
@@ -138,42 +173,6 @@ const Books = () => {
     };
 
 
-
-
-
-    const defaultColumns = [
-        {
-            title: 'ISBN',
-            dataIndex: 'ISBN',
-            width: '20%',
-
-        },
-        {
-            title:'书名',
-            dataIndex: 'bookName',
-
-        },
-        {
-            title: '作者',
-            dataIndex: 'author',
-
-        },
-        {
-            title: '价格',
-            dataIndex: 'price',
-
-        },
-        {
-            title: '操作',
-            dataIndex: 'operation',
-            render: (_, record) =>
-                dataSource.length >= 1 ? (
-                    <Popconfirm title="Sure to delete?" onConfirm={() => handleDelete(record.key)}>
-                        <a>Delete</a>
-                    </Popconfirm>
-                ) : null,
-        },
-    ];
 
     /* 这里这个handleAdd函数就是处理按了添加之后的操作的，与后端互动的地方应该就在这里*/
     /* 下面还有一个handleSave同理*/
@@ -236,51 +235,44 @@ const Books = () => {
     };
 
 
-
-
-    const components = {
-        body: {
-            row: EditableRow,
-            cell: EditableCell,
-        },
-    };
-    const columns = defaultColumns.map((col) => {
-        if (!col.editable) {
-            return col;
-        }
-
-        return {
-            ...col,
-            onCell: (record) => ({
-                record,
-                editable: col.editable,
-                dataIndex: col.dataIndex,
-                title: col.title,
-                handleSave,
-            }),
-        };
-    });
     return (
         <span >
             <div className={"container"}>
                 <h1>书籍信息表</h1>
             </div>
-            <Button
-                onClick={handleAdd}
-                type="primary"
-                style={{
-                    marginBottom: 16,
-                }}
-            >
-                添加书籍
-            </Button>
-            <Table
-                components={components}
-                rowClassName={() => 'editable-row'}
-                bordered
-                dataSource={dataSource}
-                columns={columns}
-            />
+             <EditableProTable
+                 rowKey="id"
+                 maxLength={5}
+                 scroll={{
+                     x: 960,
+                 }}
+                 recordCreatorProps={
+                     position !== 'hidden'
+                         ? {
+                             position: position,
+                             record: () => ({ id: (Math.random() * 1000000).toFixed(0) }),
+                         }
+                         : false
+                 }
+                 loading={false}
+                 columns={columns}
+                 request={async () => ({
+                     data: defaultData,
+                     total: 3,
+                     success: true,
+                 })}
+                 value={dataSource}
+                 onChange={setDataSource}
+                 editable={{
+                     type: 'multiple',
+                     editableKeys: editableKeys,
+                     onSave: async (rowKey, data, row) => {
+                         console.log(rowKey, data, row);
+                         await waitTime(100);
+                     },
+                     onChange: setEditableRowKeys,
+                 }}
+             />
         </span>
     );
 };
