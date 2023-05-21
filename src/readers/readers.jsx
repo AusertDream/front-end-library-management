@@ -115,18 +115,24 @@ const Readers = () => {
     const handleDelete = async (key) => {
         try {
             await axios.delete('http://127.0.0.1:9000/api/mgr/reader', {
-                params: {
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                data: {
                     action: 'del_reader',
                     readerID: key,
                 },
             });
 
-            const newData = dataSource.filter((item) => item.key !== key);
+            const response = await axios.get('http://127.0.0.1:9000/api/mgr/reader?action=list_reader');
+            const newData = response.data.retlist;
             setDataSource(newData);
         } catch (error) {
             // 发生错误，可以根据需要进行处理
         }
     };
+
+
 
     const defaultColumns = [
         {
