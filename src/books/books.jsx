@@ -146,22 +146,22 @@ const Books = () => {
             title: 'ISBN',
             dataIndex: 'ISBN',
             width: '20%',
-            editable: true,
+
         },
         {
             title:'书名',
             dataIndex: 'bookName',
-            editable: true,
+
         },
         {
             title: '作者',
             dataIndex: 'author',
-            editable: true,
+
         },
         {
             title: '价格',
             dataIndex: 'price',
-            editable: true,
+
         },
         {
             title: '操作',
