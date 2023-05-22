@@ -244,15 +244,16 @@ const Books = () => {
                  scroll={{
                      x: 960,
                  }}
+                 controlled={true}
                  recordCreatorProps={
                      position !== 'hidden'
                          ? {
                              position: 'top',
-                             record: () => ({ id: (Math.random() * 1000000).toFixed(0) }),
-                             /*record: () => {
+                             /*record: () => ({ id: (Math.random() * 1000000).toFixed(0) }),*/
+                             record: () => {
                                  handleAdd(); // 调用 handleAdd 函数
                                  return { id: (Math.random() * 1000000).toFixed(0) };
-                             },*/
+                             },
                          }
                          : false
                  }
@@ -270,7 +271,7 @@ const Books = () => {
                      editableKeys: editableKeys,
                      //数据交互都在onSave这里进行
                      onSave: async (rowKey, data, row) => {
-                         handleSave(row)
+                         handleSave(data)
                          console.log(rowKey, data, row);
                          await waitTime(100);
                      },
