@@ -112,7 +112,7 @@ const Books = () => {
         },
     ];
     //数据初始化
-    /*useEffect(() => {
+    useEffect(() => {
         const fetchData = async () => {
             try {
                 const response = await axios.get('http://127.0.0.1:9000/api/mgr/book', {
@@ -133,7 +133,7 @@ const Books = () => {
             }
         };
         fetchData();
-    }, []);*/
+    }, []);
 
 
     /* 这里这个handle delete函数就是处理按了删除之后的操作的，与后端互动的地方应该就在这里*/

@@ -141,27 +141,41 @@ const BorrowAndReturn = () => {
             const targetData = dataSource.find((item) => item.key === key);
             if (!targetData) return;
 
-            const response = await axios.delete('http://127.0.0.1:9000/api/mgr/borrow_return', {
+            const borrowResponse = await axios.delete('http://127.0.0.1:9000/api/mgr/borrow_return', {
                 data: {
-                    action: 'del_borrow_return',
-                    id: targetData.id,
+                    action: 'delete_borrow',
+                    borrowID: targetData.borrowID,
                 },
             });
 
-            if (response.data.ret === 0) {
-                const newData = dataSource.filter((item) => item.key !== key);
-                setDataSource(newData);
+            if (borrowResponse.data.ret === 0) {
+                const returnResponse = await axios.post('http://127.0.0.1:9000/api/mgr/borrow_return', {
+                    action: 'add_borrow',
+                    data: {
+                        date: targetData.date,
+                        ISBN: targetData.ISBN,
+                        readerID: targetData.readerID,
+                    },
+                });
+
+                if (returnResponse.data.ret === 0) {
+                    const newData = dataSource.filter((item) => item.key !== key);
+                    setDataSource(newData);
+                } else {
+                    // 创建归还记录失败，可以根据需要进行处理
+                }
             } else {
-                // 删除失败，可以根据需要进行处理
+                // 删除借阅记录失败，可以根据需要进行处理
             }
         } catch (error) {
             // 发生错误，可以根据需要进行处理
         }
     };
-    const handleDelete2 = (key) => {
+
+    /*const handleDelete2 = (key) => {
         const newData = dataSource2.filter((item) => item.key !== key);
         setDataSource2(newData);
-    };
+    };*/
     const defaultColumns = [
         {
             title: 'ID',
@@ -248,6 +262,9 @@ const BorrowAndReturn = () => {
         setCount(count + 1);
     };
 
+
+
+    /*没有新增归还记录和  修改功能*/
     const handleAdd2 = () => {
         const newData = {
             key: count2,
@@ -286,6 +303,10 @@ const BorrowAndReturn = () => {
         setDataSource2(newData);
         /* 将更新后的 newData 数组设置为新的数据源，从而更新表格中的数据显示。 */
     };
+
+
+
+
     const components = {
         body: {
             row: EditableRow,
