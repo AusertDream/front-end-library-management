@@ -2,7 +2,7 @@ import React from "react";
 import "./navbar.css"
 import { AppstoreOutlined, MailOutlined, SettingOutlined } from '@ant-design/icons';
 import { Menu } from 'antd';
-
+import { BrowserRouter, Routes, Route, Link,useNavigate } from 'react-router-dom';
 
 const items =[
     {
@@ -32,16 +32,22 @@ const items =[
     },
 ]
 
+
+
 export default function Navbar(){
+    const handleLogout = () => {
+
+    };
     return(
         <div>
             <div>
                 <nav className={"navbar"}>
                     <ul className={"nav-menu"}>
                         <li>DXY书店管理系统</li>
-                        <li>Admin(也就是用户名)</li>
-                        <li className={"right-text"} >登出</li>
+                        <li>Admin</li>
+                        <a className={"right-text"} href="../../index.html" >登出</a>
                     </ul>
+
                 </nav>
             </div>
             <div>
@@ -60,3 +66,5 @@ export default function Navbar(){
         </div>
     )
 }
+
+
