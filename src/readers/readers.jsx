@@ -124,6 +124,7 @@ const Readers = () => {
 
             // 更新数据源
             setDataSource(dataSource.filter(item => item.readerID !== key));
+
         } catch (error) {
             console.error(error);
         }

@@ -42,7 +42,7 @@ const defaultData = [
 const Books = () => {
     const [editableKeys, setEditableRowKeys] = useState([]);
     const [dataSource, setDataSource] = useState(defaultData);
-    const [position, setPosition] = useState('bottom');
+    const [position, setPosition] = useState('top');
     const columns = [
         {
             title: 'ISBN',
@@ -102,8 +102,9 @@ const Books = () => {
                 <a
                     key="delete"
                     onClick={() => {
-                        setDataSource(dataSource.filter((item) => item.id !== record.id));
+                        setDataSource(dataSource.filter((item) => item.ISBN !== record.ISBN));
                         //如果点击了删除应该做什么，这里可以写前后端的交互
+                        handleDelete(record.ISBN)
                     }}
                 >
                     删除
@@ -141,7 +142,8 @@ const Books = () => {
 
     const handleDelete = async (key) => {
         try {
-            const ISBN = dataSource.find((item) => item.key === key).ISBN;
+            const ISBN = dataSource.find((item) => item.ISBN === key).ISBN;
+            // ...) => item.key === key).ISBN;
 
             const response = await axios.delete('http://127.0.0.1:9000/api/mgr/book', {
                 headers: {
@@ -234,14 +236,14 @@ const Books = () => {
             </div>
              <EditableProTable
                  rowKey="id"
-                 maxLength={5}
+                 maxLength={1000000000000}
                  scroll={{
                      x: 960,
                  }}
                  recordCreatorProps={
                      position !== 'hidden'
                          ? {
-                             position: position,
+                             position: 'top',
                              record: () => ({ id: (Math.random() * 1000000).toFixed(0) }),
                          }
                          : false
@@ -260,6 +262,7 @@ const Books = () => {
                      editableKeys: editableKeys,
                      //数据交互都在onSave这里进行
                      onSave: async (rowKey, data, row) => {
+                         handleSave(row)
                          console.log(rowKey, data, row);
                          await waitTime(100);
                      },
