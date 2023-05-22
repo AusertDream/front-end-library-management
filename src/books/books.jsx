@@ -20,14 +20,14 @@ const waitTime = (time = 100) => {
 
 const defaultData = [
     {
-        id: 1145478,
+        id: 1,
         ISBN: 1,
         bookName: '书1',
         author: '作者1',
         price: 15.25,
     },
     {
-        id: 624691229,
+        id: 2,
         ISBN: 2,
         bookName: '书2',
         author: '作者2',
