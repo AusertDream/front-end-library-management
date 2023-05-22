@@ -174,28 +174,32 @@ const Books = () => {
     const handleAdd = async () => {
         try {
             const newData = {
-                ISBN: '987654321111',
-                bookName: 'None',
-                author: 'no author',
-                price: '0.00',
+                ISBN: '',
+                bookName: '',
+                author: '',
+                price: '0.00', // 设置默认价格为0
             };
 
             const response = await axios.post('http://127.0.0.1:9000/api/mgr/book', {
                 action: 'add_Book',
                 data: newData,
             });
+            const [count, setCount] = useState(0);
+
 
             if (response.data.ret === 0) {
-                newData.key = response.data.ISBN;
-                setDataSource([...dataSource, newData]);
-                setCount(count + 1);
-            } else {
+                newData.id = response.data.ISBN; // 将 newData 的 key 属性更改为 id
+                setDataSource((prevDataSource) => [...prevDataSource, newData]);
+            }
+            else {
                 // 添加失败，可以根据需要进行处理
             }
         } catch (error) {
             // 发生错误，可以根据需要进行处理
         }
     };
+
+
 
     const handleSave = async (row) => {
         try {
@@ -245,14 +249,18 @@ const Books = () => {
                          ? {
                              position: 'top',
                              record: () => ({ id: (Math.random() * 1000000).toFixed(0) }),
+                             /*record: () => {
+                                 handleAdd(); // 调用 handleAdd 函数
+                                 return { id: (Math.random() * 1000000).toFixed(0) };
+                             },*/
                          }
                          : false
                  }
                  loading={false}
                  columns={columns}
                  request={async () => ({
-                     data: defaultData,
-                     total: 3,
+                     data: dataSource, // 将 defaultData 替换为 dataSource
+                     total: dataSource.length, // 根据实际情况提供总数
                      success: true,
                  })}
                  value={dataSource}
