@@ -152,6 +152,7 @@ const BorrowAndReturn = () => {
                 const returnResponse = await axios.post('http://127.0.0.1:9000/api/mgr/borrow_return', {
                     action: 'add_borrow',
                     data: {
+                        returnID:targetData.borrowID,
                         date: targetData.date,
                         ISBN: targetData.ISBN,
                         readerID: targetData.readerID,

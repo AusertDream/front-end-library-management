@@ -94,7 +94,7 @@ const Books = () => {
                 <a
                     key="editable"
                     onClick={() => {
-                        action?.startEditable?.(record.id);
+                        action?.startEditable?.(record.ISBN);
                     }}
                 >
                     编辑
@@ -207,7 +207,7 @@ const Books = () => {
                 action: 'modify_Book',
                 ISBN: row.ISBN,
                 newdata: {
-                    ISBN: row.newISBN, // 修改的ISBN值
+                    ISBN: row.ISBN, // 修改的ISBN值
                     bookName: row.bookName,
                     author: row.author,
                     price: row.price,
@@ -216,12 +216,12 @@ const Books = () => {
 
             if (response.data.ret === 0) {
                 const newData = [...dataSource];
-                const index = newData.findIndex((item) => row.key === item.key);
+                const index = newData.findIndex((item) => row.ISBN === item.ISBN);
                 const item = newData[index];
                 newData.splice(index, 1, {
                     ...item,
                     ...row,
-                    ISBN: row.newISBN, // 更新修改后的ISBN值
+                    ISBN: row.ISBN, // 更新修改后的ISBN值
                 });
                 setDataSource(newData);
             } else {
@@ -239,21 +239,20 @@ const Books = () => {
                 <h1>书籍信息表</h1>
             </div>
              <EditableProTable
-                 rowKey="id"
+                 rowKey="ISBN"
                  maxLength={1000000000000}
                  scroll={{
                      x: 960,
                  }}
-                 controlled={true}
                  recordCreatorProps={
                      position !== 'hidden'
                          ? {
                              position: 'top',
-                             /*record: () => ({ id: (Math.random() * 1000000).toFixed(0) }),*/
-                             record: () => {
+                             record: () => ({ ISBN: (Math.random() * 1000000).toFixed(0) }),
+                             /*record: () => {
                                  handleAdd(); // 调用 handleAdd 函数
                                  return { id: (Math.random() * 1000000).toFixed(0) };
-                             },
+                             },*/
                          }
                          : false
                  }
@@ -271,7 +270,7 @@ const Books = () => {
                      editableKeys: editableKeys,
                      //数据交互都在onSave这里进行
                      onSave: async (rowKey, data, row) => {
-                         handleSave(data)
+                         handleSave(rowKey)
                          console.log(rowKey, data, row);
                          await waitTime(100);
                      },
