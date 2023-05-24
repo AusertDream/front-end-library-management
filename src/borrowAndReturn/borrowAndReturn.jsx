@@ -136,40 +136,25 @@ const BorrowAndReturn = () => {
     /* 这里这个handle delete函数就是处理按了删除之后的操作的，与后端互动的地方应该就在这里*/
 
 
+    // 前端代码
+
     const handleDelete = async (key) => {
         try {
-            const targetData = dataSource.find((item) => item.key === key);
-            if (!targetData) return;
+            const borrowID = dataSource.find((item) => item.key === key).borrowID;
 
-            const borrowResponse = await axios.delete('http://127.0.0.1:9000/api/mgr/borrow_return', {
-                data: {
-                    action: 'delete_borrow',
-                    borrowID: targetData.borrowID,
-                },
+            const response = await axios.post('http://127.0.0.1:9000/api/mgr/borrow_return', {
+                action: 'delete_borrow',
+                borrowID: borrowID
             });
 
-            if (borrowResponse.data.ret === 0) {
-                const returnResponse = await axios.post('http://127.0.0.1:9000/api/mgr/borrow_return', {
-                    action: 'add_borrow',
-                    data: {
-                        returnID:targetData.borrowID,
-                        date: targetData.date,
-                        ISBN: targetData.ISBN,
-                        readerID: targetData.readerID,
-                    },
-                });
-
-                if (returnResponse.data.ret === 0) {
-                    const newData = dataSource.filter((item) => item.key !== key);
-                    setDataSource(newData);
-                } else {
-                    // 创建归还记录失败，可以根据需要进行处理
-                }
+            if (response.data.ret === 0) {
+                const newData = dataSource.filter((item) => item.key !== key);
+                setDataSource(newData);
             } else {
-                // 删除借阅记录失败，可以根据需要进行处理
+                // 处理删除借阅记录失败的情况
             }
         } catch (error) {
-            // 发生错误，可以根据需要进行处理
+            // 处理错误
         }
     };
 

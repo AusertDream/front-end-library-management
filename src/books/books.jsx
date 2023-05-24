@@ -201,16 +201,16 @@ const Books = () => {
 
 
 
-    const handleSave = async (row) => {
+    const handleSave = async (data) => {
         try {
-            const response = await axios.put('http://127.0.0.1:9000/api/mgr/book', {
+            const response = await axios.post('http://127.0.0.1:9000/api/mgr/book', {
                 action: 'modify_Book',
-                ISBN: row.ISBN,
+                ISBN: data.ISBN,
                 newdata: {
-                    ISBN: row.ISBN, // 修改的ISBN值
-                    bookName: row.bookName,
-                    author: row.author,
-                    price: row.price,
+                    ISBN: data.ISBN, // 修改的ISBN值
+                    bookName: data.bookName,
+                    author: data.author,
+                    price: data.price,
                 },
             });
 
@@ -231,6 +231,9 @@ const Books = () => {
             // 发生错误，可以根据需要进行处理
         }
     };
+
+
+
 
 
     return (
@@ -270,7 +273,9 @@ const Books = () => {
                      editableKeys: editableKeys,
                      //数据交互都在onSave这里进行
                      onSave: async (rowKey, data, row) => {
-                         handleSave(rowKey)
+
+                         handleSave(data)
+                         console.log("data",data)
                          console.log(rowKey, data, row);
                          await waitTime(100);
                      },

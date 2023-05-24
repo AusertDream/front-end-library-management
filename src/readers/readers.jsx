@@ -112,14 +112,16 @@ const Readers = () => {
     axios.defaults.xsrfHeaderName = 'X-CSRFToken';
     const handleDelete = async (key) => {
         try {
+            const readerID = dataSource.find((item) => item.readerID === key).readerID;
+            // ...) => item.key === key).ISBN;
             await axios.delete('http://127.0.0.1:9000/api/mgr/reader', {
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                params: {
+                data: JSON.stringify({
                     action: 'del_reader',
-                    readerID: key,
-                },
+                    readerID: readerID,
+                }),
             });
 
             // 更新数据源
@@ -129,6 +131,7 @@ const Readers = () => {
             console.error(error);
         }
     };
+
 
     const defaultColumns = [
         {
