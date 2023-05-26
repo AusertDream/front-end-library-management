@@ -1,8 +1,9 @@
-import { Button, Form, Input, Popconfirm, Table } from 'antd';
+import { Button, Form, Input, Popconfirm, Table ,Select} from 'antd';
 import React, { useContext, useEffect, useRef, useState } from 'react';
 const EditableContext = React.createContext(null);
 import './borrowAndReturn.css'
 import axios from "axios";
+
 
 const EditableRow = ({ index, ...props }) => {
     const [form] = Form.useForm();
@@ -138,23 +139,26 @@ const BorrowAndReturn = () => {
 
     // 前端代码
 
+
     const handleDelete = async (key) => {
         try {
-            const borrowID = dataSource.find((item) => item.key === key).borrowID;
-
-            const response = await axios.post('http://127.0.0.1:9000/api/mgr/borrow_return', {
-                action: 'delete_borrow',
-                borrowID: borrowID
+            const borrowID = dataSource.find((item) => item.borrowID === key).borrowID;
+            // ...) => item.key === key).ISBN;
+            await axios.delete('http://127.0.0.1:9000/api/mgr/borrow_return', {
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                data: JSON.stringify({
+                    action: 'delete_borrow',
+                    borrowID: borrowID,
+                }),
             });
 
-            if (response.data.ret === 0) {
-                const newData = dataSource.filter((item) => item.key !== key);
-                setDataSource(newData);
-            } else {
-                // 处理删除借阅记录失败的情况
-            }
+            // 更新数据源
+            setDataSource(dataSource.filter(item => item.borrowID !== key));
+
         } catch (error) {
-            // 处理错误
+            console.error(error);
         }
     };
 
@@ -191,7 +195,7 @@ const BorrowAndReturn = () => {
             dataIndex: 'operation',
             render: (_, record) =>
                 dataSource.length >= 1 ? (
-                    <Popconfirm title="确认删除?" onConfirm={() => handleDelete(record.key)}>
+                    <Popconfirm title="确认删除?" onConfirm={() => handleDelete(record.borrowID)}>
                         <a>删除</a>
                     </Popconfirm>
                 ) : null,
@@ -240,8 +244,8 @@ const BorrowAndReturn = () => {
         const newData = {
             key: count,
             ID: `0`,
-            ISBN: `0000000`,
-            readID: '114514',
+            ISBN: `selectedISBN,`,
+            readID: 'selectedReaderID',
             date: '0000-00-00',
         };
         setDataSource([...dataSource, newData]);
@@ -290,9 +294,6 @@ const BorrowAndReturn = () => {
         /* 将更新后的 newData 数组设置为新的数据源，从而更新表格中的数据显示。 */
     };
 
-
-
-
     const components = {
         body: {
             row: EditableRow,
@@ -329,13 +330,61 @@ const BorrowAndReturn = () => {
             }),
         };
     });
+    const { Option } = Select;
+    const [bookData, setBookData] = useState([]);
+    const [readerData, setReaderData] = useState([]);
+    useEffect(() => {
+        const fetchData1 = async () => {
+            try {
+                const bookResponse = await axios.get('http://127.0.0.1:9000/api/mgr/CollectionOfBook', {
+                    params: {
+                        action: 'list_Book',
+                    },
+                });
+
+                if (bookResponse.data.ret === 0) {
+                    setBookData(bookResponse.data.retlist);
+                    console.log('Book data initialized successfully');
+                } else {
+                    console.log('Book data initialization failed');
+                }
+
+                const readerResponse = await axios.get('http://127.0.0.1:9000/api/mgr/reader', {
+                    params: {
+                        action: 'list_reader',
+                    },
+                });
+
+                if (readerResponse.data.ret === 0) {
+                    setReaderData(readerResponse.data.retlist);
+                    console.log('Reader data initialized successfully');
+                } else {
+                    console.log('Reader data initialization failed');
+                }
+            } catch (error) {
+                console.error(error);
+            }
+        };
+        fetchData1();
+    }, []);
+    const [selectedISBN, setSelectedISBN] = useState('');
+    const [selectedReaderID, setSelectedReaderID] = useState('');
+
+
+
     return (
         <span >
             <div className={'container'}>
-                <h1>
-                    借阅记录表
-                </h1>
+                <h1>借阅记录表</h1>
             </div>
+
+            <Table
+                components={components}
+                rowClassName={() => 'editable-row'}
+                bordered
+                dataSource={dataSource}
+                columns={columns}
+            />
             <Button
                 onClick={handleAdd}
                 type="primary"
@@ -345,13 +394,40 @@ const BorrowAndReturn = () => {
             >
                 添加借阅记录
             </Button>
-            <Table
-                components={components}
-                rowClassName={() => 'editable-row'}
-                bordered
-                dataSource={dataSource}
-                columns={columns}
-            />
+            <div>
+                <label>ISBN：</label>
+                <Select
+                    style={{ width: 200 }}
+                    value={selectedISBN}
+                    onChange={value => setSelectedISBN(value)}
+                >
+                    {bookData.map((book) => (
+                        <Option key={book.ISBN} value={book.ISBN}>
+                                {book.ISBN}
+                        </Option>
+                ))}
+                </Select>
+            </div>
+            <div>
+                <label>Reader ID：</label>
+                <Select
+                    style={{ width: 200 }}
+                    value={selectedReaderID}
+                    onChange={value => setSelectedReaderID(value)}
+                >
+                    {readerData.map((reader) => (
+                        <Option key={reader.readerID} value={reader.readerID}>
+                            {reader.readerID}
+                        </Option>
+                    ))}
+                </Select>
+            </div>
+
+
+
+
+
+
             <div className={'container'}>
                 <h1>归还记录表</h1>
             </div>
