@@ -1,4 +1,4 @@
-import { Button, Form, Input, Popconfirm, Table } from 'antd';
+import { Button, Form, Input, Popconfirm, Table ,Select} from 'antd';
 import React, { useContext, useEffect, useRef, useState } from 'react';
 const EditableContext = React.createContext(null);
 import './buyAndSold.css'
@@ -124,7 +124,7 @@ const BuyAndSold = () => {
                     const data = response.data.retlist.map(item => ({
                         sellID: item.sellID,
                         ISBN: item.ISBN,
-                        alreadySold: item.alreadySold,
+                        num1: item.num1,
                         price: item.price__price,
                     }));
 
@@ -200,7 +200,7 @@ const BuyAndSold = () => {
         },
         {
             title: '数量',
-            dataIndex: 'alreadySold',
+            dataIndex: 'num1',
 
         },
         {
@@ -226,31 +226,52 @@ const BuyAndSold = () => {
         const newData = {
             key: count,
             ID: `0`,
-            ISBN: '000000',
-            num: `0`,
-            totalNum: '0',
+            ISBN: selectedISBN,
+            num: selectedQuantity,
+            price:'0',
+
         };
-        setDataSource([...dataSource, newData]);
-        setCount(count + 1);
+        axios
+            .post('http://127.0.0.1:9000/api/mgr/sell_purchase', {
+                action: 'add_purchase',
+                data: newData,
+            })
+            .then((response) => {
+                const { ret, message} = response.data;
+                if (ret === 0) {
+                    setDataSource([...dataSource, newData]);
+                    setCount(count + 1);
+
+                    setSelectedISBN('');
+                    setSelectedQuantity(1);
+                    alert(message);
+                } else {
+                    alert('购买记录添加失败');
+                }
+            })
+            .catch((error) => {
+                console.error(error);
+                alert('发生错误，请重试');
+            });
     };
 
     const handleAdd2 = async () => {
         try {
             const newData = {
                 key: count,
-                ID: '1',
-                ISBN: '0000000',
-                num: '10',
-                amount: '100',
+                ID: '0',
+                ISBN: selectedISBN1,
+                num1: 1,
+                price:'0',
             };
 
-            const response = await axios.post('http://127.0.0.1:9000/api/mgr/sell_purchase', {
-                action: 'add_purchase',
+            await axios.post('http://127.0.0.1:9000/api/mgr/sell_purchase', {
+                action: 'add_sell',
                 data: newData,
             });
 
             if (response.data.ret === 0) {
-                newData.purchaseID = response.data.purchaseID;
+                newData.sellID = response.data.sellID;
                 setDataSource2([...dataSource2, newData]);
                 setCount2(count + 1);
             } else {
@@ -323,6 +344,67 @@ const BuyAndSold = () => {
             }),
         };
     });
+    const { Option } = Select;
+    const [bookData, setBookData] = useState([]);
+    const [bookData1, setBookData1] = useState([]);
+    const [selectedISBN, setSelectedISBN] = useState('');
+    const [selectedISBN1, setSelectedISBN1] = useState('');
+    const [selectedPrice, setSelectedPrice] = useState(0);
+    const [selectedPrice1, setSelectedPrice1] = useState(0);
+    const [selectedQuantity, setSelectedQuantity] = useState(1);
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                const response = await axios.get('http://127.0.0.1:9000/api/mgr/book', {
+                    params: {
+                        action: 'list_Book',
+                    },
+                });
+                if (response.data.ret === 0) {
+                    setBookData(response.data.retlist);
+                    console.log('Data fetched successfully');
+                } else {
+                    console.log('Data fetching failed');
+                }
+            } catch (error) {
+                console.error(error);
+            }
+        };
+        fetchData();
+    }, []);
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                const response = await axios.get('http://127.0.0.1:9000/api/mgr/CollectionOfBook', {
+                    params: {
+                        action: 'list_collection',
+                    },
+                });
+                if (response.data.ret === 0) {
+                    setBookData1(response.data.retlist);
+                    console.log('Data fetched successfully');
+                } else {
+                    console.log('Data fetching failed');
+                }
+            } catch (error) {
+                console.error(error);
+            }
+        };
+        fetchData();
+    }, []);
+    const handleISBNChange = (value) => {
+        setSelectedISBN(value);
+        const selectedBook = bookData.find((book) => book.ISBN === value);
+        setSelectedPrice(selectedBook?.price || '');
+    };
+    const handleISBNChange1 = (value) => {
+        setSelectedISBN1(value);
+        const selectedCollection = bookData1.find((collection) => collection.ISBN_id === value);
+        const selectedBook = selectedCollection?.ISBN;
+        const selectedPrice = selectedBook?.price || 0;
+        setSelectedPrice1(selectedPrice);
+    };
+
     return (
         <span >
             <div className={'container'}>
@@ -330,6 +412,14 @@ const BuyAndSold = () => {
                     购买记录表
                 </h1>
             </div>
+
+            <Table
+                components={components}
+                rowClassName={() => 'editable-row'}
+                bordered
+                dataSource={dataSource}
+                columns={columns}
+            />
             <Button
                 onClick={handleAdd}
                 type="primary"
@@ -339,16 +429,54 @@ const BuyAndSold = () => {
             >
                 添加购买记录
             </Button>
+            <div>
+                <label>ISBN：</label>
+                <Select
+                    style={{ width: 200 }}
+                    value={selectedISBN}
+                    onChange={handleISBNChange}
+                >
+                    {bookData.map((Book) => (
+                        <Option key={Book.ISBN} value={Book.ISBN}>
+                            {Book.ISBN}
+                        </Option>
+                    ))}
+                </Select>
+            </div>
+            <div>
+                <label> 价格： </label>
+                <span>{selectedPrice}</span>
+            </div>
+
+            <div>
+                <label>数量：</label>
+                <Select
+                    style={{ width: 120 }}
+                    value={selectedQuantity}
+                    onChange={value => setSelectedQuantity(value)}
+                >
+                    {Array.from({ length: 100 }, (_, index) => index + 1).map((num) => (
+                    <Option key={num} value={num}>
+                        {num}
+                    </Option>
+                    ))}
+                </Select>
+            </div>
+
+
+
+
+
+            <div className={'container'}>
+                <h1>出售记录表</h1>
+            </div>
             <Table
                 components={components}
                 rowClassName={() => 'editable-row'}
                 bordered
-                dataSource={dataSource}
-                columns={columns}
+                dataSource={dataSource2}
+                columns={columns2}
             />
-            <div className={'container'}>
-                <h1>出售记录表</h1>
-            </div>
             <Button
                 onClick={handleAdd2}
                 type="primary"
@@ -358,13 +486,31 @@ const BuyAndSold = () => {
             >
                 添加出售记录
             </Button>
-            <Table
-                components={components}
-                rowClassName={() => 'editable-row'}
-                bordered
-                dataSource={dataSource2}
-                columns={columns2}
-            />
+            <div>
+                <label>ISBN：</label>
+                <Select
+                    style={{ width: 200 }}
+                    value={selectedISBN1}
+                    onChange={handleISBNChange1}
+                >
+                    {bookData1.map((collection) => (
+                        <Option key={collection.ISBN_id} value={collection.ISBN_id}>
+                            {collection.ISBN_id}
+                        </Option>
+                    ))}
+
+                </Select>
+            </div>
+            <div>
+                <label> 价格： </label>
+                <span>{selectedPrice1}</span>
+            </div>
+            <div>
+                <label> 数量： 1 </label>
+
+            </div>
+
+
         </span>
     );
 };

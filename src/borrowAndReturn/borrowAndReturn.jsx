@@ -1,4 +1,4 @@
-import { Button, Form, Input, Popconfirm, Table ,Select} from 'antd';
+import {Button, Form, Input, Popconfirm, Table, Select, message} from 'antd';
 import React, { useContext, useEffect, useRef, useState } from 'react';
 const EditableContext = React.createContext(null);
 import './borrowAndReturn.css'
@@ -142,20 +142,19 @@ const BorrowAndReturn = () => {
 
     const handleDelete = async (key) => {
         try {
-            const borrowID = dataSource.find((item) => item.borrowID === key).borrowID;
-            // ...) => item.key === key).ISBN;
-            await axios.delete('http://127.0.0.1:9000/api/mgr/borrow_return', {
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                data: JSON.stringify({
-                    action: 'delete_borrow',
-                    borrowID: borrowID,
-                }),
+            const borrowItem = dataSource.find((item) => item.borrowID === key);
+            const borrowID = borrowItem.borrowID;
+            const ISBN = borrowItem.ISBN;
+            await axios.post('http://127.0.0.1:9000/api/mgr/borrow_return', {
+                action: 'delete_borrow',
+                borrowID: borrowID,
+                ISBN: ISBN,
             });
 
             // 更新数据源
             setDataSource(dataSource.filter(item => item.borrowID !== key));
+            alert(message);
+
 
         } catch (error) {
             console.error(error);
@@ -167,13 +166,13 @@ const BorrowAndReturn = () => {
             title: 'ID',
             dataIndex: 'borrowID',
             width: '20%',
-            editable: true,
+            editable: false,
         },
 
         {
             title: 'ISBN',
             dataIndex: 'ISBN_id',
-            editable: true,
+            editable: false,
         },
 
         {
@@ -203,19 +202,19 @@ const BorrowAndReturn = () => {
             title: 'ID',
             dataIndex: 'returnID',
             width: '20%',
-            editable: true,
+            editable: false,
         },
 
         {
             title: 'ISBN',
             dataIndex: 'ISBN_id',
-            editable: true,
+            editable: false,
         },
 
         {
             title: '读者ID',
             dataIndex: 'readerID_id',
-            editable: true,
+            editable: false,
         },
         {
             title:'日期',
