@@ -2,8 +2,8 @@ import { Button, Form, Input, Popconfirm, Table ,Select} from 'antd';
 import React, { useContext, useEffect, useRef, useState } from 'react';
 const EditableContext = React.createContext(null);
 import './borrowAndReturn.css'
-import axios from "axios";
-
+import axios from 'axios';
+import moment from 'moment';
 
 const EditableRow = ({ index, ...props }) => {
     const [form] = Form.useForm();
@@ -162,10 +162,6 @@ const BorrowAndReturn = () => {
         }
     };
 
-    /*const handleDelete2 = (key) => {
-        const newData = dataSource2.filter((item) => item.key !== key);
-        setDataSource2(newData);
-    };*/
     const defaultColumns = [
         {
             title: 'ID',
@@ -226,46 +222,52 @@ const BorrowAndReturn = () => {
             dataIndex: 'date',
             editable: true,
         },
-        {
-            title: '操作',
-            dataIndex: 'operation',
-            render: (_, record) =>
-                dataSource2.length >= 1 ? (
-                    <Popconfirm title="确认删除?" onConfirm={() => handleDelete2(record.key)}>
-                        <a>删除</a>
-                    </Popconfirm>
-                ) : null,
-        },
+
     ];
     /* 这里这个handleAdd函数就是处理按了添加之后的操作的，与后端互动的地方应该就在这里*/
     /* 下面还有一个handleSave同理*/
 
     const handleAdd = () => {
+
         const newData = {
             key: count,
-            ID: `0`,
-            ISBN: `selectedISBN,`,
-            readID: 'selectedReaderID',
+            ID: '0',
+            ISBN: selectedISBN,
+            readerID: selectedReaderID,
             date: '0000-00-00',
         };
-        setDataSource([...dataSource, newData]);
-        setCount(count + 1);
+
+        axios
+            .post('http://127.0.0.1:9000/api/mgr/borrow_return', {
+                action: 'add_borrow',
+                data: newData,
+            })
+            .then((response) => {
+                const { ret, message } = response.data;
+                if (ret === 0) {
+                    // 借阅成功
+                    setDataSource([...dataSource, newData]);
+                    setCount(count + 1);
+
+                    // 清空选择的ISBN和readerID
+                    setSelectedISBN('');
+                    setSelectedReaderID('');
+                    alert(message);
+                } else {
+                    // 借阅失败
+                    alert(message);
+                }
+            })
+            .catch((error) => {
+                console.error(error);
+                alert('发生错误，请重试');
+            });
     };
+
 
 
 
     /*没有新增归还记录和  修改功能*/
-    const handleAdd2 = () => {
-        const newData = {
-            key: count2,
-            ID: `0`,
-            ISBN: `0000000`,
-            readID: '114514',
-            date: '0000-00-00',
-        };
-        setDataSource2([...dataSource2, newData]);
-        setCount2(count2 + 1);
-    };
     const handleSave = (row) => {
         const newData = [...dataSource];
         const index = newData.findIndex((item) => row.key === item.key);
@@ -338,7 +340,7 @@ const BorrowAndReturn = () => {
             try {
                 const bookResponse = await axios.get('http://127.0.0.1:9000/api/mgr/CollectionOfBook', {
                     params: {
-                        action: 'list_Book',
+                        action: 'list_collection',
                     },
                 });
 
@@ -401,9 +403,9 @@ const BorrowAndReturn = () => {
                     value={selectedISBN}
                     onChange={value => setSelectedISBN(value)}
                 >
-                    {bookData.map((book) => (
-                        <Option key={book.ISBN} value={book.ISBN}>
-                                {book.ISBN}
+                    {bookData.map((CollectionOfBook) => (
+                        <Option key={CollectionOfBook.ISBN_id} value={CollectionOfBook.ISBN_id}>
+                                {CollectionOfBook.ISBN_id}
                         </Option>
                 ))}
                 </Select>
@@ -431,15 +433,7 @@ const BorrowAndReturn = () => {
             <div className={'container'}>
                 <h1>归还记录表</h1>
             </div>
-            <Button
-                onClick={handleAdd2}
-                type="primary"
-                style={{
-                    marginBottom: 16,
-                }}
-            >
-                添加归还记录
-            </Button>
+
             <Table
                 components={components}
                 rowClassName={() => 'editable-row'}
