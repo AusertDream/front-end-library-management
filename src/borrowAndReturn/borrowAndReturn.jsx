@@ -150,12 +150,9 @@ const BorrowAndReturn = () => {
                 borrowID: borrowID,
                 ISBN: ISBN,
             });
-
+            alert("归还成功");
             // 更新数据源
             setDataSource(dataSource.filter(item => item.borrowID !== key));
-            alert(message);
-
-
         } catch (error) {
             console.error(error);
         }
@@ -334,6 +331,11 @@ const BorrowAndReturn = () => {
     const { Option } = Select;
     const [bookData, setBookData] = useState([]);
     const [readerData, setReaderData] = useState([]);
+
+    const [selectedISBN, setSelectedISBN] = useState('');
+    const [selectedReaderID, setSelectedReaderID] = useState('');
+    const [selectedName, setSelectedName] = useState('');
+    const [bookData1, setBookData1] = useState([]);
     useEffect(() => {
         const fetchData1 = async () => {
             try {
@@ -362,14 +364,31 @@ const BorrowAndReturn = () => {
                 } else {
                     console.log('Reader data initialization failed');
                 }
+                const response = await axios.get('http://127.0.0.1:9000/api/mgr/book', {
+                    params: {
+                        action: 'list_Book',
+                    },
+                });
+                if (response.data.ret === 0) {
+                    setBookData1(response.data.retlist);
+                    console.log('Data fetched successfully');
+                } else {
+                    console.log('Data fetching failed');
+                }
             } catch (error) {
                 console.error(error);
             }
+
         };
         fetchData1();
     }, []);
-    const [selectedISBN, setSelectedISBN] = useState('');
-    const [selectedReaderID, setSelectedReaderID] = useState('');
+    const handleISBNChange1 = (value) => {
+        setSelectedISBN(value);
+        const selectedCollection = bookData1.find((CollectionOfBook) => CollectionOfBook.ISBN_id === value);
+        const selectedBook = bookData1.find((book) => book.ISBN === value);
+        setSelectedName(selectedBook?.bookName || '');
+    };
+
 
 
 
@@ -400,7 +419,7 @@ const BorrowAndReturn = () => {
                 <Select
                     style={{ width: 200 }}
                     value={selectedISBN}
-                    onChange={value => setSelectedISBN(value)}
+                    onChange={handleISBNChange1}
                 >
                     {bookData.map((CollectionOfBook) => (
                         <Option key={CollectionOfBook.ISBN_id} value={CollectionOfBook.ISBN_id}>
@@ -408,6 +427,10 @@ const BorrowAndReturn = () => {
                         </Option>
                 ))}
                 </Select>
+            </div>
+            <div>
+                <label>   书名： </label>
+                <span>{selectedName}</span>
             </div>
             <div>
                 <label>Reader ID：</label>

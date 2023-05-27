@@ -142,16 +142,6 @@ const BuyAndSold = () => {
         fetchData();
     }, []);
 
-
-
-    const handleDelete = (key) => {
-        const newData = dataSource.filter((item) => item.key !== key);
-        setDataSource(newData);
-    };
-    const handleDelete2 = (key) => {
-        const newData = dataSource2.filter((item) => item.key !== key);
-        setDataSource2(newData);
-    };
     const defaultColumns = [
         {
             title: 'ID',
@@ -173,16 +163,6 @@ const BuyAndSold = () => {
             title: '总金额',
             dataIndex: 'price',
             editable: true,
-        },
-        {
-            title: '操作',
-            dataIndex: 'operation',
-            render: (_, record) =>
-                dataSource.length >= 1 ? (
-                    <Popconfirm title="确认删除?" onConfirm={() => handleDelete(record.key)}>
-                        <a>删除</a>
-                    </Popconfirm>
-                ) : null,
         },
     ];
 
@@ -207,16 +187,6 @@ const BuyAndSold = () => {
             title: '单价',
             dataIndex: 'price',
 
-        },
-        {
-            title: '操作',
-            dataIndex: 'operation',
-            render: (_, record) =>
-                dataSource.length >= 1 ? (
-                    <Popconfirm title="确认删除?" onConfirm={() => handleDelete2(record.key)}>
-                        <a>删除</a>
-                    </Popconfirm>
-                ) : null,
         },
     ];
     /* 这里这个handleAdd函数就是处理按了添加之后的操作的，与后端互动的地方应该就在这里*/
@@ -350,6 +320,8 @@ const BuyAndSold = () => {
     const [selectedISBN, setSelectedISBN] = useState('');
     const [selectedISBN1, setSelectedISBN1] = useState('');
     const [selectedPrice, setSelectedPrice] = useState(0);
+    const [selectedName, setSelectedName] = useState('');
+    const [selectedName1, setSelectedName1] = useState('');
     const [selectedPrice1, setSelectedPrice1] = useState(0);
     const [selectedQuantity, setSelectedQuantity] = useState(1);
     useEffect(() => {
@@ -396,13 +368,15 @@ const BuyAndSold = () => {
         setSelectedISBN(value);
         const selectedBook = bookData.find((book) => book.ISBN === value);
         setSelectedPrice(selectedBook?.price || '');
+        setSelectedName(selectedBook?.bookName || '');
     };
     const handleISBNChange1 = (value) => {
         setSelectedISBN1(value);
         const selectedCollection = bookData1.find((collection) => collection.ISBN_id === value);
-        const selectedBook = selectedCollection?.ISBN;
-        const selectedPrice = selectedBook?.price || 0;
-        setSelectedPrice1(selectedPrice);
+        /*const selectedBook = selectedCollection?.ISBN_id;*/
+        const selectedBook = bookData.find((book) => book.ISBN === value);
+        setSelectedPrice1(selectedBook?.price || '');
+        setSelectedName1(selectedBook?.bookName || '');
     };
 
     return (
@@ -446,7 +420,10 @@ const BuyAndSold = () => {
             <div>
                 <label> 价格： </label>
                 <span>{selectedPrice}</span>
+                <label>   书名： </label>
+                <span>{selectedName}</span>
             </div>
+
 
             <div>
                 <label>数量：</label>
@@ -504,6 +481,8 @@ const BuyAndSold = () => {
             <div>
                 <label> 价格： </label>
                 <span>{selectedPrice1}</span>
+                <label>   书名： </label>
+                <span>{selectedName1}</span>
             </div>
             <div>
                 <label> 数量： 1 </label>
