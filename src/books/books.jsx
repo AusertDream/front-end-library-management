@@ -198,7 +198,38 @@ const Books = () => {
             // 发生错误，可以根据需要进行处理
         }
     };
+    const [searchInput, setSearchInput] = useState('');
+    const [searchResult, setSearchResult] = useState([]);
 
+    const handleSearchByBookName = async () => {
+        try {
+            const response = await axios.get('http://127.0.0.1:9000/api/mgr/book', {
+                params: {
+                    action: 'search_name',
+                    book_name: searchInput,
+                },
+            });
+            const { data } = response.data;
+            setSearchResult(data);
+        } catch (error) {
+            console.error(error);
+        }
+    };
+
+    const handleSearchByAuthor = async () => {
+        try {
+            const response = await axios.get('http://127.0.0.1:9000/api/mgr/book', {
+                params: {
+                    action: 'search_author',
+                    author: searchInput,
+                },
+            });
+            const { data } = response.data;
+            setSearchResult(data);
+        } catch (error) {
+            console.error(error);
+        }
+    };
 
 
     const handleSave = async (data) => {
@@ -238,6 +269,7 @@ const Books = () => {
 
     return (
         <span >
+
             <div className={"container"}>
                 <h1>书籍信息表</h1>
             </div>
@@ -252,10 +284,7 @@ const Books = () => {
                          ? {
                              position: 'top',
                              record: () => ({ ISBN: (Math.random() * 1000000).toFixed(0) }),
-                             /*record: () => {
-                                 handleAdd(); // 调用 handleAdd 函数
-                                 return { id: (Math.random() * 1000000).toFixed(0) };
-                             },*/
+
                          }
                          : false
                  }
@@ -282,6 +311,29 @@ const Books = () => {
                      onChange: setEditableRowKeys,
                  }}
              />
+            <div>
+            <input type="text" value={searchInput} onChange={(e) => setSearchInput(e.target.value)} />
+            <button onClick={handleSearchByBookName}>按书名搜索</button>
+            <button onClick={handleSearchByAuthor}>按作者搜索</button>
+            </div>
+            <div>
+                <h1>搜索结果</h1>
+                <ul>
+                    {searchResult.map((book) => (
+                        <li key={book.ISBN}>
+                            <p>ISBN: {book.ISBN}</p >
+                            <p>书名: {book.bookName}</p >
+                            <p>作者: {book.author}</p >
+                            <p>价格: {book.price}</p >
+                        </li>
+                    ))}
+                </ul>
+            </div>
+
+
+
+
+
         </span>
     );
 };
